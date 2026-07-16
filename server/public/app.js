@@ -5,7 +5,7 @@
 /* ================================================
    LOGIN & AUTHENTICATION CONTROLLER
    ================================================ */
-const API_URL = window.API_URL || 'http://localhost:3000';
+const API_URL = window.API_URL || '';
 const SESSION_KEY = 'chsd_auth_session';
 const USER_KEY    = 'chsd_auth_user';
 const TOKEN_KEY   = 'chsd_auth_token';
@@ -2150,7 +2150,7 @@ document.addEventListener('DOMContentLoaded', () => {
    MÓDULO DE GESTIÓN DE USUARIOS (solo admin)
    ============================================================ */
 (function initUserManager() {
-    const API_URL = window.API_URL || 'http://localhost:3000';
+    const API_URL = window.API_URL || '';
     let editingUserId = null;
 
     const modal         = document.getElementById('modalUsers');

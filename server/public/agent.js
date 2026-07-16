@@ -129,7 +129,7 @@ function initAgent() {
     const statusText = document.getElementById('agentStatusText');
     const btnConfig = document.getElementById('btnAgentConfig');
     const btnClear = document.getElementById('btnClearChat');
-    const API_URL = window.API_URL || 'http://localhost:3000';
+    const API_URL = window.API_URL || '';
     let isProcessing = false;
 
     function updateStatus() {
