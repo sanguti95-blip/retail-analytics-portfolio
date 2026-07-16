@@ -108,11 +108,15 @@ app.use((err, req, res, next) => {
   });
 });
 
+const { testConnection } = require('./config/db');
+
 // ── Arrancar servidor ──────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`\n🏠 Country House API corriendo en puerto ${PORT}`);
   console.log(`   Entorno: ${process.env.NODE_ENV || 'development'}`);
   console.log(`   CORS origin: ${process.env.CORS_ORIGIN || '*'}\n`);
+  
+  await testConnection();
 });
 
 module.exports = app;
