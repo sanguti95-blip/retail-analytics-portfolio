@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const sign = num < 0 ? '-' : '';
         
         let formatted = '';
-        if (absVal >= 10000000) { // >= 10M
+        if (absVal >= 1000000) { // >= 1M
             formatted = (absVal / 1000000).toFixed(2);
         } else if (absVal >= 1000) { // >= 1k
             formatted = (absVal / 1000).toFixed(1);
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             formatted = formatted.replace(/\.?0+$/, '');
         }
         
-        const suffix = absVal >= 10000000 ? 'M' : (absVal >= 1000 ? 'k' : '');
+        const suffix = absVal >= 1000000 ? 'M' : (absVal >= 1000 ? 'k' : '');
         return `${sign}₡${formatted}${suffix}`;
     };
 
@@ -1528,7 +1528,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 },
                 plugins: {
-                    legend: { labels: { color: 'var(--text-muted)', font: { family: 'Inter', size: 12 } } },
+                    legend: { position: 'bottom', labels: { color: 'var(--text-muted)', font: { family: 'Inter', size: 12 } } },
                     datalabels: {
                         anchor: 'end',
                         align: 'end',
@@ -1556,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scales: {
                     x: { ticks: { color: 'var(--text-muted)' }, grid: { display: false } },
                     y: {
-                        grace: '18%',
+                        grace: '22%',
                         ticks: {
                             color: 'var(--text-muted)',
                             callback: function(value) {
