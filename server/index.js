@@ -42,13 +42,8 @@ if (process.env.CORS_ORIGIN) {
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    // Allow any localhost origin or matches in allowedOrigins
-    if (allowedOrigins.indexOf(origin) !== -1 || /^http:\/\/localhost(:\d+)?$/.test(origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) {
-      return callback(null, true);
-    }
-    const msg = `El origen CORS ${origin} no está permitido.`;
-    return callback(new Error(msg), false);
+    // Permitir cualquier origen en la demo de portafolio para evitar bloqueos
+    return callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
