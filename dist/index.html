@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country House Santo Domingo - Panel de Inteligencia de Negocios</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js & Datalabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="index.css?v=4.4">
+    <script>window.API_URL = 'https://chsd-backend.onrender.com';</script>
+</head>
+<body>
+
+    <!-- ================================================ -->
+    <!-- LOGIN SCREEN                                      -->
+    <!-- ================================================ -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <!-- Brand logo & header -->
+            <div class="login-card-header">
+                <img src="logo.png" alt="Country House Logo" class="login-card-logo-img">
+                <h2>Country House</h2>
+                <span class="login-card-sub">Santo Domingo</span>
+            </div>
+
+            <h1 class="login-title">Iniciar Sesión</h1>
+            <p class="login-subtitle">Panel de Inteligencia de Negocios</p>
+
+            <!-- Error banner -->
+            <div id="loginError" class="login-error" style="display:none;">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <span id="loginErrorMsg">Usuario o contraseña incorrectos</span>
+            </div>
+
+            <form id="loginForm" class="login-form" autocomplete="off">
+                <div class="login-field">
+                    <label for="loginUser">
+                        <i class="fa-solid fa-user"></i> Usuario
+                    </label>
+                    <input type="text" id="loginUser" class="login-input"
+                           placeholder="Ej: admin" autocomplete="username" required>
+                </div>
+
+                <div class="login-field">
+                    <label for="loginPass">
+                        <i class="fa-solid fa-lock"></i> Contraseña
+                    </label>
+                    <div class="login-input-wrap">
+                        <input type="password" id="loginPass" class="login-input"
+                               placeholder="••••••••••" autocomplete="current-password" required>
+                        <button type="button" id="togglePass" class="login-eye" tabindex="-1">
+                            <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="loginBtnText">Ingresar al Panel</span>
+                    <i class="fa-solid fa-arrow-right" id="loginBtnIcon"></i>
+                </button>
+            </form>
+
+            <p class="login-footer">
+                <i class="fa-solid fa-shield-halved"></i>
+                Solo personal autorizado
+            </p>
+        </div>
+    </div>
+
+    <!-- Hidden File Input for Local File Selection -->
+    <input type="file" id="inputFileUpload" accept=".md,.csv,.txt" multiple style="display: none;">
+
+    <!-- APP DASHBOARD CONTAINER (Hidden until authenticated) -->
+    <div id="appDashboard" class="app-dashboard" style="display: none;">
+
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="header-container">
+                <div class="brand-section">
+                    <img src="logo.png" alt="Country House Logo" class="brand-logo-img">
+                    <div class="brand-title">
+                        <h1 class="app-title">Country House Santo Domingo <span class="app-title-sub">| Panel de Inteligencia de Negocios</span></h1>
+                        <p>Gestión de Inventario, Mermas y Estado de Resultados</p>
+                    </div>
+                </div>
+
+                <div class="header-controls">
+                    <div class="status-badge" id="syncStatusBadge">
+                        <span class="status-dot"></span>
+                        <span id="syncStatusText">Data Creada & Sincronizada</span>
+                    </div>
+                    <button class="control-btn primary" id="btnUploadFiles" title="Seleccionar archivos .md o .csv manualmente">
+                        <i class="fa-solid fa-file-arrow-up"></i> Cargar Archivos
+                    </button>
+                    <button class="control-btn" id="btnConnectSheet" title="Configurar Enlace de Google Sheets en Vivo">
+                        <i class="fa-solid fa-link"></i> Google Sheets
+                    </button>
+                    <button class="control-btn icon-only" id="btnRefreshData" title="Recargar datos de la fuente">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                    <button class="control-btn danger-text icon-only" id="btnClearCache" title="Limpiar Caché local">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                    
+                    <!-- User Profile & Logout -->
+                    <div class="user-profile-badge" id="userProfileBadge">
+                        <i class="fa-solid fa-circle-user"></i>
+                        <span id="userNameDisplay">admin</span>
+                    </div>
+                    <button class="control-btn danger-text" id="btnLogout" title="Cerrar Sesión Segura">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Salir</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+    <!-- Main Content Area -->
+    <main class="main-container">
+        <!-- Global Data Info Bar & Central Command Controls -->
+        <div class="global-info-bar">
+            <div class="info-bar-left">
+                <div class="last-updated">
+                    <i class="fa-solid fa-clock"></i>
+                    <span id="lastUpdatedText">Sin datos cargados</span>
+                </div>
+                <div class="data-source-label" id="dataSourceLabel">
+                    <i class="fa-solid fa-database"></i>
+                    <span id="dataSourceText">—</span>
+                </div>
+            </div>
+            
+            <!-- CENTRAL AUDIT COMMAND BAR -->
+            <div class="global-filters" style="display: flex; gap: 16px; align-items: center;">
+                <div class="filter-item">
+                    <label for="globalMonth"><i class="fa-regular fa-calendar"></i> Mes:</label>
+                    <select id="globalMonth" class="select-input">
+                        <option value="all" selected>Todos los Meses (Acumulado)</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="globalYear"><i class="fa-solid fa-calendar-days"></i> Año:</label>
+                    <select id="globalYear" class="select-input">
+                        <option value="2026" selected>2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="globalChannel"><i class="fa-solid fa-store"></i> Tienda / Bodega:</label>
+                    <select id="globalChannel" class="select-input">
+                        <option value="all">🌐 Consolidado (Ambos)</option>
+                        <option value="tienda">🏪 Tienda Santo Domingo</option>
+                        <option value="ruta">🚚 Bodega (Ruta 403)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Executive Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="ventas-mermas">
+                <i class="fa-solid fa-chart-line"></i> 1. Ventas, Mermas e Inventarios
+            </button>
+            <button class="tab-btn" data-tab="pl-gastos">
+                <i class="fa-solid fa-building-columns"></i> 2. Estado de Resultados y Gastos
+            </button>
+            <button class="tab-btn" data-tab="agente-ia">
+                <i class="fa-solid fa-robot"></i> 3. Agente IA
+            </button>
+        </nav>
+
+        <!-- ======================================================== -->
+        <!-- SECCIÓN 1: VENTAS, MERMAS E INVENTARIOS                 -->
+        <!-- ======================================================== -->
+        <section id="tab-ventas-mermas" class="tab-content active">
+            <!-- KPIs: Ventas, Mermas, % Merma, Inventario al Costo -->
+            <div class="kpi-grid">
+                <div class="kpi-card highlight" style="--i: 0;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Ingreso Bruto de Ventas</span>
+                        <i class="fa-solid fa-sack-dollar kpi-icon"></i>
+                    </div>
+                    <div class="kpi-value" id="kpiOverviewVentas">₡0.00</div>
+                    <div class="kpi-desc">Acumulado del período auditado</div>
+                </div>
+
+                <div class="kpi-card danger" style="--i: 1;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Impacto Financiero por Merma</span>
+                        <i class="fa-solid fa-triangle-exclamation kpi-icon"></i>
+                    </div>
+                    <div class="kpi-value" id="kpiOverviewMermaCost">₡0</div>
+                    <div class="kpi-desc">Pérdida valorizada por deterioro</div>
+                </div>
+
+                <div class="kpi-card warning" style="--i: 2;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Tasa de Merma</span>
+                        <i class="fa-solid fa-percent kpi-icon"></i>
+                    </div>
+                    <div class="kpi-value" id="kpiOverviewMermaPercent">0.0%</div>
+                    <div class="kpi-desc">Proporción sobre ingresos brutos</div>
+                </div>
+
+                <div class="kpi-card success" style="--i: 3;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Valor Total Stock (A Costo)</span>
+                        <i class="fa-solid fa-coins kpi-icon"></i>
+                    </div>
+                    <div class="kpi-value" id="kpiStockTotalCosto">₡0.00</div>
+                    <div class="kpi-desc">Inversión retenida en bodega</div>
+                </div>
+            </div>
+
+            <!-- Gráficos de Top 10 Ventas y Top 10 Mermas (Lado a Lado) -->
+            <div class="charts-split-grid">
+                <div class="dashboard-card" style="margin-bottom: 0;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Top 10 Productos con Mayor Venta</h3>
+                            <p>Generación de ingresos brutos por SKU</p>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chartTopVentas"></canvas>
+                    </div>
+                </div>
+
+                <div class="dashboard-card" style="margin-bottom: 0;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Top 10 Productos con Mayor Pérdida por Merma</h3>
+                            <p>Valorización de pérdida por deterioro o vencimiento</p>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chartTopMermas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparativas Mensuales -->
+            <div class="charts-split-grid" style="margin-top: 24px;">
+                <div class="dashboard-card" style="margin-bottom: 0;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Comparativa Mensual de Ventas (12 Meses)</h3>
+                            <p>Año A vs. Año B — evolución mensual de ingresos brutos</p>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chartVentasMonthly"></canvas>
+                    </div>
+                </div>
+
+                <div class="dashboard-card" style="margin-bottom: 0;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Comparativa Mensual de Merma Bruta (12 Meses)</h3>
+                            <p>Año A vs. Año B — evolución mensual de pérdidas por deterioro</p>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="chartMermaMonthly"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla Maestra de Inventario y Controles -->
+            <div class="dashboard-card" style="margin-top: 24px; margin-bottom: 24px;">
+                <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
+                        <div class="card-title">
+                            <h3>Inventario y Mermas</h3>
+                            <p>Filtre por estado de salud o busque directamente un artículo</p>
+                        </div>
+                </div>
+
+                <div style="padding: 12px 0; display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+                    <div class="filter-group" style="min-width: 240px;">
+                        <label for="selectStockStatus" class="text-muted" style="align-self: center; font-size: 13px;">Semáforo de Salud:</label>
+                        <select id="selectStockStatus" class="select-input" style="font-weight: 600;">
+                            <option value="all">Todos los Productos</option>
+                            <option value="danger">🔴 Stock Crítico / Agotado (&lt; 3 días)</option>
+                            <option value="warning">🟡 Bajo Stock / Reorden (3 a 7 días)</option>
+                            <option value="normal">🟢 Stock Saludable (&gt; 7 días)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="flex: 1; min-width: 250px;">
+                        <label for="searchStockCodeDesc" class="text-muted" style="align-self: center; font-size: 13px;">Buscar Código / Artículo:</label>
+                        <input type="text" id="searchStockCodeDesc" class="select-input" placeholder="Ej. 125142 o REPOLLO" style="width: 100%;">
+                    </div>
+                </div>
+
+                <div style="padding: 8px 12px; font-size: 12px; color: var(--primary); font-weight: 500; display: flex; align-items: center; gap: 6px; background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 12px;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>💡 Tip: Haz clic en cualquier fila de la tabla para ver su gráfico de tendencia histórica de 18 meses.</span>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="codigo" style="cursor:pointer">Código <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="sortable" data-sort="articulo" style="cursor:pointer">Artículo <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="text-right sortable" data-sort="saldoActual" style="cursor:pointer">Saldo <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="text-right sortable" data-sort="montoBruto" style="cursor:pointer">Ventas (₡) <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="text-right sortable" data-sort="cantidad" style="cursor:pointer">Ventas (Unid.) <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="text-right sortable" data-sort="unidadesMerma" style="cursor:pointer">Merma (Unid.) <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="text-right sortable" data-sort="costoBrutoMerma" style="cursor:pointer">Merma (₡) <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="text-right sortable" data-sort="pctUnidades" style="cursor:pointer">% Merma (Unid.) <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="text-right sortable" data-sort="pctMonto" style="cursor:pointer">% Merma (₡) <i class="fa-solid fa-sort text-muted"></i></th>
+                                <th class="text-right sortable" data-sort="diasInv" style="cursor:pointer">Días Inv. <i class="fa-solid fa-sort text-muted"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyStock">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- SECCIÓN 2: ESTADO DE RESULTADOS Y GASTOS                 -->
+        <!-- ======================================================== -->
+        <section id="tab-pl-gastos" class="tab-content">
+            <!-- KPIs: Utilidad (Resultado Neto), Variación en Utilidad YoY, Variación en Ventas YoY -->
+            <div class="kpi-grid">
+                <div class="kpi-card highlight" id="kpiCardNeto" style="--i: 0;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Resultado Neto Final (Utilidad)</span>
+                        <i class="fa-solid fa-building-columns kpi-icon"></i>
+                    </div>
+                    <div class="kpi-value" id="kpiPLResultadoNeto">₡0.00</div>
+                    <div class="kpi-desc" id="kpiPLMargenNeto">Margen Neto: 0%</div>
+                </div>
+
+                <div class="kpi-card purple" style="--i: 1;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Variación en Utilidad (YoY)</span>
+                        <i class="fa-solid fa-chart-line kpi-icon"></i>
+                    </div>
+                    <div class="kpi-value" id="kpiYoYNetoValue">₡0.00</div>
+                    <div class="kpi-subtitle">
+                        <span class="kpi-badge" id="kpiYoYNetoBadge">0.0%</span>
+                        <span id="kpiYoYNetoSub">Año B vs Año A</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card warning" style="--i: 2;">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Variación en Ventas (YoY)</span>
+                        <i class="fa-solid fa-sack-dollar kpi-icon"></i>
+                    </div>
+                    <div class="kpi-value" id="kpiYoYVentasValue">₡0.00</div>
+                    <div class="kpi-subtitle">
+                        <span class="kpi-badge" id="kpiYoYVentasBadge">0.0%</span>
+                        <span id="kpiYoYVentasSub">Año B vs Año A</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notice banner for months without P&L accounting records -->
+            <div id="plNoticeBanner" style="display: none; padding: 10px 16px; background: oklch(0.96 0.03 70 / 0.15); border: 1px solid var(--warning); border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 13px; color: var(--text-main); align-items: center; gap: 10px;">
+                <i class="fa-solid fa-circle-info text-warning" style="font-size: 16px;"></i>
+                <span id="plNoticeText">El Estado de Resultados enviado incluye registros de Enero a Mayo 2026. Seleccione Enero-Mayo o "Todos los Meses" para el desglose P&L completo.</span>
+            </div>
+
+            <!-- Estado de Resultados Integral (P&L) -->
+            <div class="dashboard-card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Estado de Resultados Integral (P&L)</h3>
+                        <p>Detalle desglosado por cuenta financiera</p>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table" id="tablePL">
+                        <thead>
+                            <tr>
+                                <th>Cuenta Financiera</th>
+                                <th class="text-right">Monto Real (₡)</th>
+                                <th class="text-right">% sobre Ventas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPL">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Análisis de Gastos Operativos por Cuenta -->
+            <div class="dashboard-card" style="margin-top: 24px;">
+                <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
+                    <div class="card-title">
+                        <h3>Análisis de Gastos Operativos por Cuenta</h3>
+                        <p>Filtrado de rubros de egreso y comparativa mensual</p>
+                    </div>
+                </div>
+
+                <!-- Filtro Interactivo de Cuentas de Gasto -->
+                <div style="margin-bottom: 20px;">
+                    <div id="gastosAccountFilters" style="display: flex; align-items: center; gap: 12px;"></div>
+                </div>
+
+                <!-- Gráficos de Gastos a Ancho Completo -->
+                <div class="charts-split-grid">
+                    <div class="dashboard-card" style="margin-bottom: 0;">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h3>Tendencia de Gastos Totales (12 Meses)</h3>
+                                <p>Comparativo interanual mensualizado de gastos operativos</p>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="chartGastos12Meses"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card" style="margin-bottom: 0;">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h3>Top Gastos Totales YTD</h3>
+                                <p>Cuentas de mayor egreso acumulado en el período</p>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="chartGastosVariacion"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Comparativa Mes a Mes de Gastos -->
+                <div class="dashboard-card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>Comparativa Mes a Mes de Gastos por Cuenta</h3>
+                            <p>Desglose mensualizado por rubro de egreso para el <strong id="lblGastosYearB">2026</strong></p>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead id="theadGastos"></thead>
+                            <tbody id="tbodyGastos"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen Histórico Multianual -->
+            <div class="dashboard-card" style="margin-top: 24px; margin-bottom: 24px;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Resumen Financiero Histórico (2021 - 2026)</h3>
+                        <p>Desempeño consolidado y márgenes de rentabilidad por año fiscal</p>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Año</th>
+                                <th class="text-right">Ventas Totales (₡)</th>
+                                <th class="text-right">Costos de Ventas (₡)</th>
+                                <th class="text-right">Gastos Operativos (₡)</th>
+                                <th class="text-right">Resultado Neto (₡)</th>
+                                <th class="text-right">Margen Neto %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyHistoryYears">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- SECCIÓN 3: AGENTE IA                                    -->
+        <!-- ======================================================== -->
+        <section id="tab-agente-ia" class="tab-content">
+            <div class="dashboard-card" style="margin-bottom: 16px;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3><i class="fa-solid fa-robot" style="color: var(--primary);"></i> Agente IA — Country House Santo Domingo</h3>
+                        <p>Consultor inteligente con contexto completo de tu tienda. Haz preguntas en español sobre inventario, mermas, ventas y finanzas.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="control-btn" id="btnAgentConfig" title="Configurar API Key">
+                            <i class="fa-solid fa-key"></i> API Key
+                        </button>
+                        <button class="control-btn icon-only" id="btnClearChat" title="Limpiar conversación">
+                            <i class="fa-solid fa-eraser"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="agentStatus" style="padding: 8px 14px; background: var(--bg); border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary);"></i>
+                    <span id="agentStatusText">Esperando API Key para activar el agente...</span>
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="agentChat" style="height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; background: var(--bg); margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+                    <div class="agent-message agent-bot">
+                        <div class="agent-avatar"><i class="fa-solid fa-robot"></i></div>
+                        <div class="agent-bubble">
+                            <strong>¡Hola! Soy tu agente de Country House Santo Domingo.</strong><br><br>
+                            Puedo ayudarte con:
+                            <ul style="margin: 8px 0 0 16px; font-size: 13px;">
+                                <li>Sugerencias de pedidos y reposición</li>
+                                <li>Análisis de productos con exceso de inventario</li>
+                                <li>Detección de mermas altas y causas</li>
+                                <li>Recomendaciones para reducir pérdidas</li>
+                                <li>Resumen de ventas y rentabilidad</li>
+                            </ul>
+                            <br>
+                            <em style="font-size: 12px;">Configura tu API Key en el botón "API Key" para comenzar.</em>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suggested Questions -->
+                <div id="agentSuggestions" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                    <button class="control-btn suggestion-chip" data-question="¿Cuáles son los productos con mayor merma este mes?">🔴 Top mermas</button>
+                    <button class="control-btn suggestion-chip" data-question="¿Qué productos tienen exceso de inventario y debería dejar de pedir?">📦 Exceso inventario</button>
+                    <button class="control-btn suggestion-chip" data-question="¿Qué productos debería reabastecer urgentemente?">⚠️ Reabastecer</button>
+                    <button class="control-btn suggestion-chip" data-question="Dame un resumen ejecutivo del estado de la tienda">📊 Resumen ejecutivo</button>
+                    <button class="control-btn suggestion-chip" data-question="¿Cómo puedo reducir las mermas en la tienda?">💡 Reducir mermas</button>
+                </div>
+
+                <!-- Chat Input -->
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="agentInput" class="select-input" style="flex: 1;" placeholder="Escribe tu pregunta en español..." disabled>
+                    <button class="control-btn primary" id="btnAgentSend" disabled>
+                        <i class="fa-solid fa-paper-plane"></i> Enviar
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Google Sheets Connect Modal -->
+    <div class="modal-overlay" id="modalSheets">
+        <div class="modal-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3>Conectar Google Sheets en Vivo</h3>
+                    <p>Ingresa el enlace publicado como CSV de tu hoja de cálculo</p>
+                </div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label class="text-muted" style="font-size: 13px; display: block; margin-bottom: 8px;">URL de Exportación CSV de Google Sheets:</label>
+                <input type="text" id="inputSheetUrl" class="select-input" style="width: 100%;" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv">
+                <p style="font-size: 12px; color: var(--text-dim); margin-top: 6px;">Al configurar esta URL, la app se conectará automáticamente a la hoja donde tu Apps Script inyecta los datos diarios de Codisa (pestañas Historico + Mes_Actual), y también traerá el Estado de Resultados desde la pestaña "Estado_Resultados" del mismo Sheet — no necesitas cargarlo manualmente.</p>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="control-btn" id="btnCloseModal">Cancelar</button>
+                <button class="control-btn primary" id="btnSaveSheetUrl">Guardar y Sincronizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product SKU 18-Month Trend Modal -->
+    <div class="modal-overlay" id="modalProductHistory">
+        <div class="modal-card" style="max-width: 800px;">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3 id="modalProductTitle">Histórico de Producto</h3>
+                    <p id="modalProductSubtitle">Evolución de ventas y mermas en los últimos 18 meses (2025 - 2026)</p>
+                </div>
+                <button class="control-btn" id="btnCloseProductModal" style="padding: 6px 12px;"><i class="fa-solid fa-xmark"></i> Cerrar</button>
+            </div>
+            <div class="chart-wrapper tall" style="margin-top: 10px;">
+                <canvas id="chartProductHistory"></canvas>
+            </div>
+        </div>
+    </div> <!-- /#modalProductHistory -->
+
+    <!-- API Key Modal -->
+    <div class="modal-overlay" id="modalApiKey">
+        <div class="modal-card" style="max-width: 520px;">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3>Configurar Agente IA</h3>
+                    <p>Elige tu proveedor e ingresa tu API Key</p>
+                </div>
+            </div>
+
+
+
+            <!-- Model Selection -->
+            <div style="margin-bottom: 16px;">
+                <label class="text-muted" style="font-size: 13px; display: block; margin-bottom: 6px; font-weight: 600;">Modelo:</label>
+                <select id="selectAgentModel" class="select-input" style="width: 100%;"></select>
+            </div>
+
+            <!-- API Key Input -->
+            <div style="margin-bottom: 16px;">
+                <label class="text-muted" style="font-size: 13px; display: block; margin-bottom: 6px; font-weight: 600;">API Key:</label>
+                <input type="password" id="inputApiKey" class="select-input" style="width: 100%;" placeholder="Tu API Key">
+                <p style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span id="apiKeyHelpText">Obtén tu API Key gratis en <a href="https://console.groq.com/keys" target="_blank" style="color: var(--primary);">console.groq.com/keys</a></span>
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button class="control-btn primary" id="btnSaveApiKey" style="flex: 1;">
+                    <i class="fa-solid fa-check"></i> Guardar y Activar Agente
+                </button>
+                <button class="control-btn" id="btnCloseApiModal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    </div> <!-- /#appDashboard -->
+
+    <!-- Application JavaScript -->
+    <script src="app.js?v=4.4"></script>
+    <script src="agent.js?v=4.4"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+    "name":  "chsd-dashboard",
+    "version":  "1.0.0",
+    "description": "Panel de Inteligencia de Negocios - Country House Santo Domingo. Gestión de inventario, mermas y estado de resultados.",
+    "main":  "index.html",
+    "scripts": {
+        "start": "npx http-server -p 8080 -c-1 --cors",
+        "build": "node build-bundle.js",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "test:ui": "node tests/ui-audit.js"
+    },
+    "keywords": [
+        "dashboard",
+        "codisa",
+        "inventario",
+        "mermas",
+        "estado-resultados"
+    ],
+    "author":  "",
+    "license":  "ISC",
+    "type":  "commonjs",
+    "devDependencies": {
+        "http-server":  "^14.1.1",
+        "puppeteer":  "^25.3.0"
+    }
+}
