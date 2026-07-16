@@ -1217,7 +1217,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Extract all unique accounts to populate the filter (excluding main totals/revenues)
         const alwaysExclude = [
-            'ventas', 'costos de ventas', 'utilidad bruta', 
+            'ventas', 'ventas brutas', 'costos de ventas', 'utilidad bruta', 
             'sub-total gastos de operación', 'total gastos de operación', 
             'utilidad operativa', 'resultado neto', 'base para calculo comisones'
         ];
