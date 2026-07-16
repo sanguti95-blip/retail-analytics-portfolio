@@ -4,13 +4,28 @@
 
 ---
 
+## 🚀 Live Demo / Demostración en Vivo
+
+*   **URL:** [https://portfolio-dashboard-q0la.onrender.com/](https://portfolio-dashboard-q0la.onrender.com/)
+*   **Credenciales de Acceso / Login Credentials:**
+    *   **Administrador (Full access & sync):**
+        *   **Usuario / Username:** `admin`
+        *   **Contraseña / Password:** `admin`
+    *   **Gerencia (Read-only + AI chat):**
+        *   **Usuario / Username:** `gerencia`
+        *   **Contraseña / Password:** `ch2026`
+
+---
+
 ## Español
 
-> **Nota:** Este es un repositorio p�blico de Portafolio / Demo. Todos los datos financieros y de inventario han sido anonimizados o sustituidos por datos ficticios para proteger la confidencialidad de la operaci�n real.`r`n`r`nEste proyecto es una plataforma de **Business Intelligence (BI) y analítica con Inteligencia Artificial** a medida, diseñada para optimizar la gestión de inventario, el control de mermas y el análisis de estados financieros (P&L) de la tienda **Country House Santo Domingo** (Costa Rica).
+> 💡 **Nota:** Este es un repositorio público de Portafolio / Demo. Todos los datos financieros y de inventario han sido anonimizados o sustituidos por datos ficticios para proteger la confidencialidad de la operación real.
+
+Este proyecto es una plataforma de **Business Intelligence (BI) y analítica con Inteligencia Artificial** a medida, diseñada para optimizar la gestión de inventario, el control de mermas y el análisis de estados financieros (P&L) de la tienda **Country House Santo Domingo** (Costa Rica).
 
 El sistema consolida los datos de venta y existencias, sincronizándolos automáticamente con Google Sheets y Supabase, ofreciendo una interfaz visual interactiva y un asistente inteligente de consultas de negocio impulsado por la API de Groq Cloud.
 
-### 🚀 Características Principales
+### 🌟 Características Principales
 
 *   **Dashboard Interactivo:** Visualizaciones dinámicas de ventas brutas, rentabilidad, costo de mermas y valor total de inventario a precio de costo.
 *   **Asistente IA de Consulta (Groq Cloud):** Un agente virtual inteligente integrado (impulsado por `llama-3.3-70b-versatile`) que analiza el stock actual en tiempo real para sugerir órdenes de compra, detectar excesos de inventario y responder preguntas en lenguaje natural con tono amigable.
@@ -29,11 +44,13 @@ El sistema consolida los datos de venta y existencias, sincronizándolos automá
 
 ## English
 
+> 💡 **Note:** This is a public Portfolio / Demo repository. All financial and inventory data has been anonymized or replaced with dummy data to protect operational confidentiality.
+
 This project is a bespoke **Business Intelligence (BI) and AI-driven Analytics Dashboard** designed to optimize inventory management, shrinkage control, and financial statement (P&L) analysis for the **Country House Santo Domingo** retail store (Costa Rica).
 
 The system consolidates sales and stock data, syncing it automatically from Google Sheets to a Supabase database, offering an interactive visual UI and an AI-powered natural language business assistant using the Groq Cloud API.
 
-### 🚀 Key Features
+### 🌟 Key Features
 
 *   **Interactive BI Dashboard:** Live visualizations of gross sales, net margins, shrinkage costs, and total inventory value at cost price.
 *   **AI Business Assistant (Groq Cloud):** An integrated conversational agent (powered by `llama-3.3-70b-versatile`) that reviews live stock data to suggest purchase orders, detect inventory excess, and answer business queries in a friendly, conversational tone.
@@ -115,15 +132,16 @@ graph TD
 
 1.  **Clone the repository / Clonar el repositorio:**
     ```bash
-    git clone https://github.com/YOUR_USERNAME/country-house-bi-dashboard.git
-    cd country-house-bi-dashboard
+    git clone https://github.com/sanguti95-blip/retail-analytics-portfolio.git
+    cd retail-analytics-portfolio
     ```
 2.  **Install dependencies / Instalar dependencias:**
     ```bash
+    cd server
     npm install
     ```
 3.  **Environment Variables / Variables de entorno (`.env`):**
-    Create a `.env` file in the root folder / Crea un archivo `.env` en la raíz con las siguientes variables:
+    Create a `.env` file in the `server` folder / Crea un archivo `.env` en la carpeta `server` con las siguientes variables:
     ```env
     PORT=3000
     DATABASE_URL=postgresql://your_postgres_credentials
@@ -132,6 +150,6 @@ graph TD
     ```
 4.  **Run the application / Iniciar la aplicación:**
     ```bash
-    npm run dev
+    npm start
     ```
     Open / Abre `http://localhost:3000` in your browser.
